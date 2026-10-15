@@ -1,0 +1,245 @@
+html<!-- LIBRO INFINITO DE OC -->
+<section id="libro-oc">
+    <h2>📖 El Libro Infinito de OC</h2>
+    <p>
+        Un libro. Infinitos personajes. Infinitas historias...
+    </p>
+
+    <div class="libro">
+        <div id="numero-pagina">
+            Página 1
+        </div>
+
+        <img id="foto-oc"
+        src=""
+        alt="Foto del OC"
+        style="display:none;">
+
+        <h3 id="nombre-oc">Todavía no hay personajes...</h3>
+        <p id="creador-oc"></p>
+        <p id="historia-oc">
+            ¡Sé el primero en agregar un OC!
+        </p>
+
+        <div class="botones-pagina">
+            <button onclick="paginaAnterior()">⬅ Anterior</button>
+            <button onclick="paginaSiguiente()">Siguiente ➡</button>
+        </div>
+    </div>
+
+    <h3>✍️ Crear una página de OC</h3>
+
+    <input id="nuevo-nombre"
+    placeholder="Nombre del OC">
+
+    <input id="nuevo-creador"
+    placeholder="Nombre del creador">
+
+    <textarea id="nueva-historia"
+        placeholder="Escribe la historia del OC..."></textarea>
+
+    <label for="nueva-foto">🖼️ Elegir foto de la galería</label>
+    <input id="nueva-foto"
+    type="file"
+    accept="image/*">
+
+    <button onclick="agregarOC()">📖 Agregar al libro</button>
+
+    <p id="mensaje-oc"></p>
+</section>
+
+<style>
+    #libro-oc {
+        background: #100e11;
+        color: #e0d0ad;
+        padding: 20px;
+        text-align: center;
+        font-family: Georgia, serif;
+    }
+
+    #libro-oc .libro {
+        background: #e0d0ad;
+        color: #292019;
+        border: 5px double #6b171f;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 450px;
+        min-height: 280px;
+        box-shadow: 0 0 20px #7b1828;
+    }
+
+    #libro-oc #foto-oc {
+        display: block;
+        max-width: 100%;
+        max-height: 350px;
+        object-fit: contain;
+        margin: 15px auto;
+        border: 2px solid #6b171f;
+    }
+
+    #libro-oc input,
+    #libro-oc textarea {
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 450px;
+        margin: 12px auto;
+        padding: 12px;
+        background: #211b20;
+        color: #fff0d5;
+        border: 1px solid #9b3440;
+        border-radius: 5px;
+    }
+
+    #libro-oc label {
+        display: block;
+        margin: 15px;
+    }
+
+    #libro-oc button {
+        background: #8b1e2d;
+        color: white;
+        border: 1px solid #c56a72;
+        padding: 10px 14px;
+        margin: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    #libro-oc button:hover {
+        background: #b52b40;
+    }
+
+    #libro-oc .botones-pagina {
+        margin-top: 25px;
+    }
+</style>
+
+<script>
+    let personajesOC = JSON.parse(
+        localStorage.getItem("miLibroOC") || "[]"
+    );
+
+    let paginaOC = 0;
+
+    function mostrarOC() {
+        const nombre = document.getElementById("nombre-oc");
+        const creador = document.getElementById("creador-oc");
+        const historia = document.getElementById("historia-oc");
+        const numero = document.getElementById("numero-pagina");
+        const foto = document.getElementById("foto-oc");
+
+        if (personajesOC.length === 0) {
+            numero.textContent = "Libro vacío";
+            nombre.textContent = "Todavía no hay personajes...";
+            creador.textContent = "";
+            historia.textContent = "¡Agrega tu primer OC!";
+            foto.style.display = "none";
+            return;
+        }
+
+        const oc = personajesOC[paginaOC];
+
+        numero.textContent =
+        "Página " + (paginaOC + 1) +
+        " de " + personajesOC.length;
+
+        nombre.textContent = oc.nombre;
+        creador.textContent = "Creado por: " + oc.creador;
+        historia.textContent = oc.historia;
+
+        if (oc.foto) {
+            foto.src = oc.foto;
+            foto.style.display = "block";
+        } else {
+            foto.style.display = "none";
+        }
+    }
+
+    function paginaAnterior() {
+        if (paginaOC > 0) {
+            paginaOC--;
+            mostrarOC();
+        }
+    }
+
+    function paginaSiguiente() {
+        if (paginaOC < personajesOC.length - 1) {
+            paginaOC++;
+            mostrarOC();
+        }
+    }
+
+    function agregarOC() {
+        const nombre =
+        document.getElementById("nuevo-nombre").value.trim();
+        const creador =
+        document.getElementById("nuevo-creador").value.trim();
+        const historia =
+        document.getElementById("nueva-historia").value.trim();
+        const archivo =
+        document.getElementById("nueva-foto").files[0];
+
+        if (!nombre || !historia) {
+            alert("Escribe el nombre y la historia del OC.");
+            return;
+        }
+
+        function guardar(foto) {
+            personajesOC.push({
+                nombre: nombre,
+                creador: creador || "Anónimo",
+                historia: historia,
+                foto: foto
+            });
+
+            try {
+                localStorage.setItem(
+                    "miLibroOC",
+                    JSON.stringify(personajesOC)
+                );
+            } catch (error) {
+                personajesOC.pop();
+                alert("La imagen es demasiado grande para guardarla. Prueba con una foto más pequeña.");
+                return;
+            }
+
+            paginaOC = personajesOC.length - 1;
+            mostrarOC();
+
+            document.getElementById("nuevo-nombre").value = "";
+            document.getElementById("nuevo-creador").value = "";
+            document.getElementById("nueva-historia").value = "";
+            document.getElementById("nueva-foto").value = "";
+
+            document.getElementById("mensaje-oc").textContent =
+            "¡Tu OC fue agregado al libro! 📖";
+        }
+
+        if (archivo) {
+            if (!archivo.type.startsWith("image/")) {
+                alert("Elige un archivo de imagen válido.");
+                return;
+            }
+
+            if (archivo.size > 700000) {
+                alert("La foto pesa demasiado. Elige una imagen de menos de 700 KB.");
+                return;
+            }
+
+            const lector = new FileReader();
+            lector.onload = function() {
+                guardar(lector.result);
+            };
+            lector.onerror = function() {
+                alert("No se pudo leer la foto.");
+            };
+            lector.readAsDataURL(archivo);
+        } else {
+            guardar("");
+        }
+    }
+
+    mostrarOC();
+</script>
